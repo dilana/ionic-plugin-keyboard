@@ -113,7 +113,45 @@ public class IonicKeyboard extends CordovaPlugin {
                          }
                     };
 
-                    rootView.getViewTreeObserver().addOnGlobalLayoutListener(list);
+                    focusListener = new OnGlobalLayoutListener() {
+                        int previousHeightDiff = 0;
+
+                        @Override
+                        public void onGlobalFocusChanged(View oldFocus, View newFocus) {
+                            Rect r = new Rect();
+                            //r will be populated with the coordinates of your view that area still visible.
+                            rootView.getWindowVisibleDisplayFrame(r);
+
+                            PluginResult result;
+
+                            // cache properties for later use
+                            int rootViewHeight = rootView.getRootView().getHeight();
+                            int resultBottom = r.bottom;
+
+                            // calculate screen height differently for android versions >= 21: Lollipop 5.x, Marshmallow 6.x
+                            //http://stackoverflow.com/a/29257533/3642890 beware of nexus 5
+                            int screenHeight;
+
+                            if (Build.VERSION.SDK_INT >= 21) {
+                                Display display = cordova.getActivity().getWindowManager().getDefaultDisplay();
+                                Point size = new Point();
+                                display.getSize(size);
+                                screenHeight = size.y;
+                            } else {
+                                screenHeight = rootViewHeight;
+                            }
+
+                            int heightDiff = screenHeight - resultBottom;
+                            int pixelHeightDiff = (int)(heightDiff / density);
+
+                            if(oldFocus != newFocus) {
+                                String msg = "F" + Integer.toString(pixelHeightDiff);;
+                                result = new PluginResult(PluginResult.Status.OK, msg);
+                            }
+                        }
+                    };
+
+                    rootView.getViewTreeObserver().OnGlobalFocusChangeListener(focusListener);
 
 
                     PluginResult dataResult = new PluginResult(PluginResult.Status.OK);
