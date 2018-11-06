@@ -50,9 +50,6 @@ channel.onCordovaReady.subscribe(function() {
 
             //deprecated
             cordova.fireWindowEvent('native.hidekeyboard');
-        } else if ( action === "R") {
-            var height = msg.substr(1);
-            cordova.fireWindowEvent('native.focuschange', { "windowHeight": + height});
         }
     }
 });
